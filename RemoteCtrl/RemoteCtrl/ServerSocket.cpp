@@ -3,5 +3,5 @@
 
 //CServerSocket server;
 CServerSocket* CServerSocket::m_instance = nullptr;
-CServerSocket* pserver = CServerSocket::getInstance();
+//CServerSocket* pserver = CServerSocket::getInstance();
 CServerSocket::Helper CServerSocket::m_helper;

@@ -167,6 +167,14 @@ public:
 		return -1;
 	}
 
+	bool GetFilePath(std::string& strPath) {
+		if (m_packet.sCmd == 2) {
+			strPath = m_packet.strData;
+			return true;
+		}
+		return false;
+	}
+
 	int Send(const char* pData, int nSize) {
 		if (m_client == -1)   return false;
 		return send(m_client, pData, nSize, 0) > 0;

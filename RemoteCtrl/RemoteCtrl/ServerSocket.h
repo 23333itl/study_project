@@ -11,8 +11,13 @@ public:
 		sHead = 0xFEFF;
 		nLength = nSize + 4;
 		sCmd = nCmd;
-		strData.resize(nSize);
-		memcpy((void*)strData.c_str(), pData, nSize);
+		if (nSize > 0) {
+			strData.resize(nSize);
+			memcpy((void*)strData.c_str(), pData, nSize);
+		}
+		else {
+			strData.clear();
+		}
 		sSum = 0;
 		for (size_t j = 0;j < strData.size();j++) {
 			sSum += BYTE(strData[j]) & 0xFF;//保留最后8位  BYTE（char）将char转换为ASCII码值  sum累加数据的ASCII码值
@@ -51,6 +56,7 @@ public:
 		}
 		sSum = *(WORD*)(pData + i);  i += 2;
 		WORD sum = 0;
+		//计算校验和
 		for (size_t j = 0;j < strData.size();j++) {
 			sum += BYTE(strData[j]) & 0xFF;//保留最后8位  BYTE（char）将char转换为ASCII码值  sum累加数据的ASCII码值
 		}
@@ -168,7 +174,7 @@ public:
 	}
 
 	bool GetFilePath(std::string& strPath) {
-		if (m_packet.sCmd == 2) {
+		if (m_packet.sCmd >= 2&&(m_packet.sCmd<=4)) {
 			strPath = m_packet.strData;
 			return true;
 		}

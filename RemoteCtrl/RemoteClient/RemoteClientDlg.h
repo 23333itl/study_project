@@ -29,6 +29,7 @@ private:
 	//返回值：是命令号，如果小于0则是错误
 	int SendCommandPacket(int nCmd, bool bAutoClose=true,BYTE* pData=NULL, size_t nLength = 0);
 	void DeleteTreeChildrenItem(HTREEITEM hTree);
+	void LoadFileInfo();
 // 实现
 protected:
 	HICON m_hIcon;
@@ -47,4 +48,8 @@ public:
 	CTreeCtrl m_Tree;
 	afx_msg void OnTvnSelchangedTreeDir(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMDblclkTreeDir(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMClickTreeDir(NMHDR* pNMHDR, LRESULT* pResult);
+	// 显示文件
+	CListCtrl m_List;
+	afx_msg void OnNMRClickListFile(NMHDR* pNMHDR, LRESULT* pResult);
 };

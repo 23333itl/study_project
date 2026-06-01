@@ -7,6 +7,23 @@
 #pragma pack(push)
 #pragma pack(1)
 #define BUFFER_SIZE 4096
+
+typedef struct file_info {
+	file_info() {
+		IsInvalid = FALSE;
+		IsDirectory = -1;
+		HasNext = TRUE;
+		memset(szFileName, 0, sizeof(szFileName));
+	}
+	BOOL IsInvalid;//是否无效
+	BOOL IsDirectory;//是否为目录 0否 1是
+	BOOL HasNext;//是否还有后续 0没有 1有
+	char szFileName[256];//文件名
+
+}FILEINFO, * PFILEINFO;
+
+
+
 class CPacket {
 public:
 	//查看具体原始数据
@@ -32,6 +49,7 @@ public:
 		if (nSize > 0) {
 			strData.resize(nSize);
 			memcpy((void*)strData.c_str(), pData, nSize);
+			//memcpy(&strData[0], pData, nSize);
 		}
 		else {
 			strData.clear();
@@ -222,7 +240,7 @@ public:
 	}
 
 	bool Send(CPacket& pack) {
-		//TRACE("m_sock:\r\n", m_sock);
+		//TRACE("m_sock:%d \r\n", m_sock);
 		if (m_sock == -1)   return false;
 		//std::string strSend;
 		//strSend.append((char*)&pack.sHead, 2);

@@ -13,19 +13,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-typedef struct file_info{
-    file_info() {
-        IsInvalid = FALSE;
-        IsDirectory = -1;
-        HasNext = TRUE;
-        memset(szFileName, 0, sizeof(szFileName));
-    }
-    BOOL IsInvalid;//是否无效
-    BOOL IsDirectory;//是否为目录 0否 1是
-    BOOL HasNext;//是否还有后续 0没有 1有
-    char szFileName[256];//文件名
-    
-}FILEINFO,*PFILEINFO;
+
 
 // 唯一的应用程序对象
 
@@ -71,10 +59,7 @@ int MakeDiretoryInfo() {
     }
     if (_chdir(strPath.c_str()) != 0) {//尝试把程序当前工作目录切换到strPath  切换失败
         FILEINFO finfo;
-        finfo.IsInvalid = TRUE;
-        finfo.IsDirectory = TRUE;
         finfo.HasNext = FALSE;
-        memcpy(finfo.szFileName, strPath.c_str(), strPath.size());
         //lstFileInfos.push_back(finfo);
         CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
         CServerSocket::getInstance()->Send(pack);
@@ -82,16 +67,25 @@ int MakeDiretoryInfo() {
         return -2;
     }
     _finddata_t fdata;
-    int hfind = 0;
+    intptr_t  hfind = 0;
+    //int hfind = 0;
     if ((hfind=_findfirst("*", &fdata)) == -1) {//查找当前目录下所有文件 / 文件夹
         OutputDebugString(_T("没有找到任何文件！！"));
+        FILEINFO finfo;
+		CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+        CServerSocket::getInstance()->Send(pack);
         return -3;
     }
     do {
         FILEINFO finfo;
         //finfo.IsInvalid = FALSE;
         finfo.IsDirectory = (fdata.attrib & _A_SUBDIR) != 0;
+        
         memcpy(finfo.szFileName, fdata.name, strlen(fdata.name));
+        //strncpy_s(finfo.szFileName, sizeof(finfo.szFileName), fdata.name, _TRUNCATE);
+        TRACE("%s \r\n", finfo.szFileName);
+        CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+        CServerSocket::getInstance()->Send(pack);
     } while (!_findnext(hfind, &fdata));
     //发送信息到控制端
     FILEINFO finfo;
@@ -292,7 +286,7 @@ unsigned __stdcall threadLockDlg(void* arg) {
     rect.left = 0;
     rect.top = 0;
     rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
-    rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN) * 1.1;
+    rect.bottom = (LONG)GetSystemMetrics(SM_CYFULLSCREEN) * 1.1;
     //rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
     TRACE("screen right:%d bottom:%d\r\n", rect.right, rect.bottom);
     dlg.MoveWindow(rect);

@@ -7,6 +7,20 @@
 
 void Dump(BYTE* pData, size_t nSize);
 
+typedef struct file_info {
+	file_info() {
+		IsInvalid = FALSE;
+		IsDirectory = -1;
+		HasNext = TRUE;
+		memset(szFileName, 0, sizeof(szFileName));
+	}
+	BOOL IsInvalid;//是否无效
+	BOOL IsDirectory;//是否为目录 0否 1是
+	BOOL HasNext;//是否还有后续 0没有 1有
+	char szFileName[256];//文件名
+
+}FILEINFO, * PFILEINFO;
+
 class CPacket {
 public:
 	CPacket():sHead(0),nLength(0),sCmd(0),sSum(0){}
@@ -17,6 +31,7 @@ public:
 		if (nSize > 0) {
 			strData.resize(nSize);
 			memcpy((void*)strData.c_str(), pData, nSize);
+			//memcpy(&strData[0], pData, nSize);
 		}
 		else {
 			strData.clear();
@@ -218,7 +233,7 @@ public:
 	}
 
 	bool Send(CPacket& pack) {
-		TRACE("m_sock=", ser_sock);
+		//TRACE("m_sock= %d", ser_sock);
 		if (m_client == -1)   return false;
 		return send(m_client,pack.Data(), pack.Size(), 0) > 0;
 	}

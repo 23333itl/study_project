@@ -117,15 +117,11 @@ int DownloadFile() {
         CServerSocket::getInstance()->Send(pack);
         return -1;
     }
-    //if (pFile==NULL) {
-    //    CPacket pack(4, (BYTE*)&data, 8);
-    //    CServerSocket::getInstance()->Send(pack);
-    //    return -1;
-    //}
     if (pFile != NULL) {
         fseek(pFile, 0, SEEK_END);
         data = _ftelli64(pFile);
         CPacket head(4, (BYTE*)&data, 8);//head 记录文件长度
+        CServerSocket::getInstance()->Send(head);
         fseek(pFile, 0, SEEK_SET);
         char buffer[1024];
         size_t rlen = 0;
@@ -355,7 +351,7 @@ int ExcuteCommand(int nCmd) {
     case 3://打开文件
         ret = RunFile();
         break;
-    case 4:
+    case 4://下载文件
         ret = DownloadFile();
         break;
     case 5:

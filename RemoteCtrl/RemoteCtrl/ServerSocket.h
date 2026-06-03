@@ -52,7 +52,7 @@ public:
  
 
 	CPacket(const BYTE* pData, size_t& nSize) {
-		TRACE("server packet:\r\n");
+		//TRACE("server packet:\r\n");
 		Dump((BYTE*)pData, nSize);
 		size_t i = 0;
 		for (;i < nSize;i++) {

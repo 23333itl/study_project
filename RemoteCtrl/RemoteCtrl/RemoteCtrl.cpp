@@ -76,6 +76,7 @@ int MakeDiretoryInfo() {
         CServerSocket::getInstance()->Send(pack);
         return -3;
     }
+    int Count = 0;
     do {
         FILEINFO finfo;
         //finfo.IsInvalid = FALSE;
@@ -86,7 +87,9 @@ int MakeDiretoryInfo() {
         TRACE("%s \r\n", finfo.szFileName);
         CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
         CServerSocket::getInstance()->Send(pack);
+        Count++;
     } while (!_findnext(hfind, &fdata));
+    TRACE("Server Count: %d \r\n", Count);
     //发送信息到控制端
     FILEINFO finfo;
     finfo.HasNext = FALSE;

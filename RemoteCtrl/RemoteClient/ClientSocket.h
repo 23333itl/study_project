@@ -22,26 +22,13 @@ typedef struct file_info {
 
 }FILEINFO, * PFILEINFO;
 
-
+//查看具体原始数据
+void Dump(BYTE* pData, size_t nSize);
 
 class CPacket {
 public:
-	//查看具体原始数据
-	void Dump(BYTE* pData, size_t nSize) {
-		std::string strOUT;
-		for (size_t i = 0;i < nSize;i++) {
-			char buf[8] = "";
-			if (i > 0 && (i % 16 == 0)) strOUT += "\n";
-			snprintf(buf, sizeof(buf), "%02X ", pData[i] & 0xFF);
-			strOUT += buf;
-		}
-		strOUT += "\n";
-		OutputDebugStringA(strOUT.c_str());
-	}
-
-
-
 	CPacket() :sHead(0), nLength(0), sCmd(0), sSum(0) {}
+	//组包
 	CPacket(WORD nCmd, const BYTE* pData, size_t nSize) {
 		sHead = 0xFEFF;
 		nLength = nSize + 4;
@@ -49,6 +36,7 @@ public:
 		if (nSize > 0) {
 			strData.resize(nSize);
 			memcpy((void*)strData.c_str(), pData, nSize);
+			TRACE("%s \r\n", strData.c_str() + 12);
 			//memcpy(&strData[0], pData, nSize);
 		}
 		else {
@@ -58,7 +46,7 @@ public:
 		for (size_t j = 0;j < strData.size();j++) {
 			sSum += BYTE(strData[j]) & 0xFF;//保留最后8位  BYTE（char）将char转换为ASCII码值  sum累加数据的ASCII码值
 		}
-		TRACE("client packet: \r\n");
+		//TRACE("client packet: \r\n");
 		Dump((BYTE*)Data(), Size());
 	}
 
@@ -68,7 +56,7 @@ public:
 		sCmd = pack.sCmd;
 		strData = pack.strData;
 	}
-
+	//解析包
 	CPacket(const BYTE* pData, size_t& nSize) {
 		size_t i = 0;
 		for (;i < nSize;i++) {
@@ -188,7 +176,7 @@ public:
 		int ret=connect(m_sock, (sockaddr*) &serv_adr, sizeof(serv_adr));
 		if (ret == -1) {
 			AfxMessageBox("连接失败!");
-			TRACE("连接失败: %d %s\r\n", WSAGetLastError(),GetErrorInfo(WSAGetLastError()).c_str());
+			//TRACE("连接失败: %d %s\r\n", WSAGetLastError(),GetErrorInfo(WSAGetLastError()).c_str());
 			return false;
 		}
 		return true;
@@ -205,12 +193,13 @@ public:
 			TRACE("内存不足\r\n");
 			return -2;
 		}
-		memset(buffer, 0, BUFFER_SIZE);
-		size_t index = 0;
+		//memset(buffer, 0, BUFFER_SIZE);
+		static size_t index = 0;
 		while (true) {
 		    int  len = recv(m_sock, buffer + index, (int)BUFFER_SIZE - index, 0);
-			TRACE("client recv len=%d\r\n", len);
-			if (len <= 0) {
+			//TRACE("client recv len=%d\r\n", len);
+			Dump((BYTE*)buffer, len);
+			if ((len <= 0) &&(index==0)) {
 				return -1;
 			}
 			size_t Len = (size_t)len;
@@ -218,7 +207,7 @@ public:
 			Len = index;
 			m_packet = CPacket((BYTE*)buffer, Len);
 			if (Len > 0) {
-				memmove(buffer, buffer + Len, BUFFER_SIZE - Len);
+				memmove(buffer, buffer + Len, index - Len);
 				index -= Len;
 				return m_packet.sCmd;
 			}
@@ -282,7 +271,7 @@ private:
 			exit(0);
 		}
 		m_buffer.resize(BUFFER_SIZE);
-
+		memset(m_buffer.data(), 0, BUFFER_SIZE);
 	}
 	~CClientSocket() {
 		closesocket(m_sock);

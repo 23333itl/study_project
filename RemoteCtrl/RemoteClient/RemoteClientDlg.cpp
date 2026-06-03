@@ -115,8 +115,9 @@ void CRemoteClientDlg::LoadFileInfo()
 	int nCmd = SendCommandPacket(2, false, (BYTE*)(LPCTSTR)strPath, strPath.GetLength());
 	PFILEINFO pInfo = (PFILEINFO)CClientSocket::getInstance()->GetPacket().strData.c_str();
 	CClientSocket* pClient = CClientSocket::getInstance();
+	int Count = 0;
 	while (pInfo->HasNext) {
-		TRACE("[%s] isdir %d\r\n", pInfo->szFileName, pInfo->IsDirectory);
+		//TRACE("[%s] isdir %d\r\n", pInfo->szFileName, pInfo->IsDirectory);
 		if (pInfo->IsDirectory) {
 			if ((CString)pInfo->szFileName == "." || (CString)pInfo->szFileName == "..") {
 				int cmd = pClient->DealCommand();
@@ -132,6 +133,7 @@ void CRemoteClientDlg::LoadFileInfo()
 			else {
 				HTREEITEM hTemp = m_Tree.InsertItem(pInfo->szFileName, hTreeSelected, TVI_LAST);
 				m_Tree.InsertItem("", hTemp, TVI_LAST);
+				Count++;
 			}
 		}
 		else {//文件
@@ -146,6 +148,7 @@ void CRemoteClientDlg::LoadFileInfo()
 		
 	};
 	pClient->CloseSocket();
+	TRACE("Client Count: %d \r\n", Count);
 }
 
 BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
@@ -375,7 +378,7 @@ void CRemoteClientDlg::OnDownloadFile()
 		}
 		HTREEITEM hSelected = m_Tree.GetSelectedItem();
 		strFile = GetPath(hSelected)+strFile;
-		TRACE("strFile: %s \r\n", strFile);
+		//TRACE("strFile: %s \r\n", strFile);
 		int ret = SendCommandPacket(4, false, (BYTE*)(LPCSTR)strFile, strFile.GetLength());//long point const str
 		if (ret < 0) {
 			AfxMessageBox(_T("执行下载失败！"));

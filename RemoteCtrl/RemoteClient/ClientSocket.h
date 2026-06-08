@@ -147,6 +147,7 @@ typedef struct MouseEvent {
 //获取错误信息
 std::string GetErrorInfo(int wsaErrCode);
 
+
 class CClientSocket
 {
 public:

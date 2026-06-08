@@ -279,7 +279,6 @@ int SendScreen() {
         CServerSocket::getInstance()->Send(pack);
         GlobalUnlock(hMem);
     }
-
     pStream->Release();
     GlobalFree(hMem);
     screen.ReleaseDC();

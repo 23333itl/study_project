@@ -43,6 +43,13 @@ private:
 	int SendCommandPacket(int nCmd, bool bAutoClose = true, BYTE* pData = NULL, size_t nLength = 0);
 	void DeleteTreeChildrenItem(HTREEITEM hTree);
 	void LoadFileInfo();
+public:
+	bool isFull() const {//const 函数不会修改成员变量
+		return m_isfull;
+	}
+	CImage& GetImage() {
+		return m_image;
+	}
 private:
 	CImage m_image;//缓存
 	bool m_isfull;//缓存是否有数据
@@ -73,4 +80,6 @@ public:
 	afx_msg void OnRunFile();
 	afx_msg LRESULT OnSendPacket(WPARAM wparam, LPARAM lparam); //2 定义自定义消息响应函数
 
+	afx_msg void OnBnClickedBtnStartWatch();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

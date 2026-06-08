@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "WatchDialog.h"
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -84,6 +85,8 @@ BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
 	ON_COMMAND(ID_DELETE_FILE, &CRemoteClientDlg::OnDeleteFile)
 	ON_COMMAND(ID_RUN_FILE, &CRemoteClientDlg::OnRunFile)
 	ON_MESSAGE(WM_SEND_PACKET, &CRemoteClientDlg::OnSendPacket)//3 注册消息
+	ON_BN_CLICKED(IDC_BTN_START_WATCH, &CRemoteClientDlg::OnBnClickedBtnStartWatch)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -369,10 +372,24 @@ void CRemoteClientDlg::threadWatchData()
 		if (ret) {
 			int cmd = pClient->DealCommand();
 			if (cmd == 6) {
-				if (m_isfull == false) {
+				if (m_isfull == false) {//更新数据到缓存
 					BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();//存入CImage
-					//TUDO:存入CImage
-					m_isfull = true;
+					HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, pClient->GetPacket().strData.size());
+					if (hMem == NULL) {
+						TRACE("内存不足!");
+						Sleep(1);
+						continue;
+					}
+					IStream* pStream = NULL;
+					HRESULT hRet=CreateStreamOnHGlobal(hMem, TRUE, &pStream);
+					if (hRet == S_OK) {
+						ULONG length = 0;
+						pStream->Write(pData, pClient->GetPacket().strData.size(), &length);
+						LARGE_INTEGER bg = { 0 };
+						pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+						m_image.Load(pStream);
+						m_isfull = true;
+					}
 				}
 				else {
 
@@ -522,4 +539,24 @@ LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wparam, LPARAM lparam)//4 实现�
 	CString strFile = (LPCSTR)lparam;
 	int ret = SendCommandPacket(wparam>>1, wparam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
 	return ret;
+}
+
+
+
+void CRemoteClientDlg::OnBnClickedBtnStartWatch()
+{
+	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
+	GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);
+	CWatchDialog dlg(this);
+	//m_dlgStatus.m_info.SetWindowTextA(_T("正在监视远程屏幕数据!"));
+	//m_dlgStatus.ShowWindow(SW_SHOW);
+	//m_dlgStatus.CenterWindow(this);
+	//m_dlgStatus.SetActiveWindow();
+}
+
+void CRemoteClientDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
 }

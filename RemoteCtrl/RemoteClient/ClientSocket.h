@@ -6,7 +6,7 @@
 
 #pragma pack(push)
 #pragma pack(1)
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 409600
 
 typedef struct file_info {
 	file_info() {

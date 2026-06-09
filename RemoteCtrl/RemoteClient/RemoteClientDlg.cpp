@@ -361,41 +361,42 @@ void CRemoteClientDlg::threadEntryForWatchData(void* arg)
 
 void CRemoteClientDlg::threadWatchData()
 {
+	Sleep(50);
 	CClientSocket* pClient = NULL;
 	do {
 		pClient = CClientSocket::getInstance();
-	}
-	while (pClient == NULL);
+	} while (pClient == NULL);
+	ULONGLONG tick = GetTickCount64();
 	for (;;) {//等价于while(true)
-		CPacket pack(6, NULL, 0);
-		bool ret = pClient->Send(pack);
-		if (ret) {
-			int cmd = pClient->DealCommand();
-			if (cmd == 6) {
-				if (m_isfull == false) {//更新数据到缓存
-					BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();//存入CImage
-					HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, pClient->GetPacket().strData.size());
-					if (hMem == NULL) {
-						TRACE("内存不足!");
-						Sleep(1);
-						continue;
-					}
-					IStream* pStream = NULL;
-					HRESULT hRet=CreateStreamOnHGlobal(hMem, TRUE, &pStream);
-					if (hRet == S_OK) {
-						ULONG length = 0;
-						pStream->Write(pData, pClient->GetPacket().strData.size(), &length);
-						LARGE_INTEGER bg = { 0 };
-						pStream->Seek(bg, STREAM_SEEK_SET, NULL);
-						m_image.Load(pStream);
-						m_isfull = true;
-					}
+		//if (GetTickCount64() - tick < 150) {//增加间隔
+		//	Sleep(GetTickCount64() - tick);
+		//}
+		if (m_isfull == false) {
+			int ret = SendMessage(WM_SEND_PACKET, 6 << 1 | 1);
+			if (ret == 6) {
+				//更新数据到缓存
+				BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();//存入CImage
+				HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, pClient->GetPacket().strData.size());
+				if (hMem == NULL) {
+					TRACE("内存不足!");
+					Sleep(1);
+					continue;
 				}
-				else {
-
+				IStream* pStream = NULL;
+				HRESULT hRet = CreateStreamOnHGlobal(hMem, TRUE, &pStream);
+				if (hRet == S_OK) {
+					ULONG length = 0;
+					pStream->Write(pData, pClient->GetPacket().strData.size(), &length);
+					LARGE_INTEGER bg = { 0 };
+					pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+					m_image.Load(pStream);
+					m_isfull = true;
 				}
+			}//ret
+			else {
+				Sleep(1);
 			}
-		}
+		}//isfull
 		else {
 			Sleep(1);
 		}
@@ -536,8 +537,21 @@ void CRemoteClientDlg::OnRunFile()
 
 LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wparam, LPARAM lparam)//4 实现消息响应函数
 {
-	CString strFile = (LPCSTR)lparam;
-	int ret = SendCommandPacket(wparam>>1, wparam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+	int ret = 0;
+	int cmd = wparam >> 1;
+	switch (cmd) {
+	case 4: {
+		CString strFile = (LPCSTR)lparam;
+		ret = SendCommandPacket(wparam >> 1, wparam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+	}
+		break;
+	case 6:
+		ret = SendCommandPacket(wparam >> 1, wparam & 1);
+		break;
+	default:
+		ret = -1;
+	}
+	
 	return ret;
 }
 
@@ -545,9 +559,11 @@ LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wparam, LPARAM lparam)//4 实现�
 
 void CRemoteClientDlg::OnBnClickedBtnStartWatch()
 {
-	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
-	GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);
 	CWatchDialog dlg(this);
+	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
+	dlg.DoModal();
+	//GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);
+	
 	//m_dlgStatus.m_info.SetWindowTextA(_T("正在监视远程屏幕数据!"));
 	//m_dlgStatus.ShowWindow(SW_SHOW);
 	//m_dlgStatus.CenterWindow(this);

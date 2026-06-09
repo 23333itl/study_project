@@ -44,8 +44,7 @@ int  MakeDriverInfo() {//1==>A 2==>B 3==>C ...26==>Z
         }
 	}
 	CPacket pack(1, (BYTE*)result.c_str(), result.size());
-	//Dump((BYTE*)&pack, pack.nLength+6);
-    Dump((BYTE*)pack.Data(), pack.Size());
+    //Dump((BYTE*)pack.Data(), pack.Size());
     CServerSocket::getInstance()->Send(pack);
     return 0;
 }
@@ -190,6 +189,7 @@ int MouseEvent() {
             break;
          
         }
+        TRACE("mouse event: %08X x: %d y: %d\r\n", nFlags,mouse.ptXY.x,mouse.ptXY.y);
         switch (nFlags) {
         case 0x21://左键双击  模拟两次单击
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
@@ -432,9 +432,9 @@ int main()
                     MessageBox(NULL, _T("无法正常接入用户，自动重试"), _T("接入用户失败！"), MB_OK | MB_ICONERROR);
                     count++;
                 }
-                TRACE("AcceptClient return true\r\n");
+                //TRACE("AcceptClient return true\r\n");
 				int ret=pserver->DealCommand();
-				TRACE("DealCommand ret %d \r\n", ret);
+				//TRACE("DealCommand ret %d \r\n", ret);
                 if (ret > 0) {
                     ret=ExcuteCommand(pserver->GetPacket().sCmd);
                     if (ret != 0) {

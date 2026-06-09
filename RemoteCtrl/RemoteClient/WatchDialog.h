@@ -23,7 +23,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	//将客户端（控制端）的坐标转换成服务端（被控端）的坐标
-	CPoint UserPoint2RemoteSceeenPoint(CPoint& point);
+	CPoint UserPoint2RemoteSceeenPoint(CPoint& point,bool isScreen=true);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnStnClickedWatch();

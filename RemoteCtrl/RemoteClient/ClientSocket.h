@@ -47,7 +47,7 @@ public:
 			sSum += BYTE(strData[j]) & 0xFF;//保留最后8位  BYTE（char）将char转换为ASCII码值  sum累加数据的ASCII码值
 		}
 		//TRACE("client packet: \r\n");
-		Dump((BYTE*)Data(), Size());
+		//Dump((BYTE*)Data(), Size());
 	}
 
 	CPacket(const CPacket& pack) {
@@ -199,7 +199,7 @@ public:
 		while (true) {
 		    int  len = recv(m_sock, buffer + index, (int)BUFFER_SIZE - index, 0);
 			//TRACE("client recv len=%d\r\n", len);
-			Dump((BYTE*)buffer, len);
+			//Dump((BYTE*)buffer, len);
 			if ((len <= 0) &&(index==0)) {
 				return -1;
 			}

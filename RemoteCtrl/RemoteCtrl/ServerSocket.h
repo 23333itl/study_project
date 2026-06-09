@@ -53,7 +53,7 @@ public:
 
 	CPacket(const BYTE* pData, size_t& nSize) {
 		//TRACE("server packet:\r\n");
-		Dump((BYTE*)pData, nSize);
+		//Dump((BYTE*)pData, nSize);
 		size_t i = 0;
 		for (;i < nSize;i++) {
 			if (*(WORD*)(pData + i) == 0xFEFF) {//从接收的数据开始每次解析两个字节，直到找到包头
@@ -199,7 +199,7 @@ public:
 		size_t index = 0;
 		while (true) {
 			int len = recv(m_client, buffer + index, (int)BUFFER_SIZE - index, 0);
-			TRACE("server recv len=%d\r\n", len);
+			//TRACE("server recv len=%d\r\n", len);
 			if (len <= 0) {
 				delete[]buffer;
 				return -1;

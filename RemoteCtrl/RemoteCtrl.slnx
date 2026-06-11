@@ -3,6 +3,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Folder Name="/解决方案项/">
+    <File Path="远程控制系统设计.mdj" />
+  </Folder>
   <Project Path="RemoteClient/RemoteClient.vcxproj" />
   <Project Path="RemoteCtrl/RemoteCtrl.vcxproj" Id="7c0ece23-3dd9-40eb-b53d-07d7e9108003" />
 </Solution>

@@ -552,8 +552,11 @@ LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wparam, LPARAM lparam)//4 实现�
 	}
 		  break;
 	case 6:
+	case 7:
+	case 8: {
 		ret = SendCommandPacket(wparam >> 1, wparam & 1);
-		break;
+	}
+		  break;
 	default:
 		ret = -1;
 	}

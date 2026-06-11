@@ -6,7 +6,7 @@
 
 #pragma pack(push)
 #pragma pack(1)
-#define BUFFER_SIZE 409600*2
+#define BUFFER_SIZE 2048000
 
 typedef struct file_info {
 	file_info() {
@@ -177,7 +177,7 @@ public:
 		int ret=connect(m_sock, (sockaddr*) &serv_adr, sizeof(serv_adr));
 		if (ret == -1) {
 			AfxMessageBox("连接失败!");
-			//TRACE("连接失败: %d %s\r\n", WSAGetLastError(),GetErrorInfo(WSAGetLastError()).c_str());
+			TRACE("连接失败: %d %s\r\n", WSAGetLastError(),GetErrorInfo(WSAGetLastError()).c_str());
 			return false;
 		}
 		return true;
@@ -198,7 +198,7 @@ public:
 		static size_t index = 0;
 		while (true) {
 		    int  len = recv(m_sock, buffer + index, (int)BUFFER_SIZE - index, 0);
-			//TRACE("client recv len=%d\r\n", len);
+			TRACE("client recv len=%d\r\n", len);
 			//Dump((BYTE*)buffer, len);
 			if ((len <= 0) &&(index==0)) {
 				return -1;

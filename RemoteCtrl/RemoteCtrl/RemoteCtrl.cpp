@@ -254,7 +254,8 @@ int SendScreen() {
 	int nWidth = GetDeviceCaps(hScreen,HORZRES);
 	int nHeight = GetDeviceCaps(hScreen, VERTRES);//获取屏幕宽高
     screen.Create(nWidth, nHeight, nBitPerPixel);
-	BitBlt(screen.GetDC(), 0, 0, 1920, 1020, hScreen, 0, 0, SRCCOPY);
+	BitBlt(screen.GetDC(), 0, 0, nWidth, nHeight, hScreen, 0, 0, SRCCOPY);
+    //BitBlt(screen.GetDC(), 0, 0, 978, 586, hScreen, 0, 0, SRCCOPY);
 	ReleaseDC(NULL, hScreen);
     //for (int i = 0;i < 10;i++) {
     //    DWORD tick = GetTickCount64();

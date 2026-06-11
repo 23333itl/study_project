@@ -87,6 +87,7 @@ BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
 	ON_MESSAGE(WM_SEND_PACKET, &CRemoteClientDlg::OnSendPacket)//3 注册消息
 	ON_BN_CLICKED(IDC_BTN_START_WATCH, &CRemoteClientDlg::OnBnClickedBtnStartWatch)
 	ON_WM_TIMER()
+	ON_NOTIFY(IPN_FIELDCHANGED, IDC_IPADDRESS_SERV, &CRemoteClientDlg::OnIpnFieldchangedIpaddressServ)
 END_MESSAGE_MAP()
 
 
@@ -209,7 +210,7 @@ BOOL CRemoteClientDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 	UpdateData();
-	m_server_address = 0x7F000001;
+	m_server_address = 0x0A502B96;//10.80.43.150
 	m_nPort = _T("9527");
 	UpdateData(FALSE);
 	m_dlgStatus.Create(IDD_DLG_STATUS,this);
@@ -360,14 +361,14 @@ void CRemoteClientDlg::threadEntryForWatchData(void* arg)
 }
 
 void CRemoteClientDlg::threadWatchData()
-{
+{//可能存在异步问题导致程序崩溃
 	Sleep(50);
 	CClientSocket* pClient = NULL;
 	do {
 		pClient = CClientSocket::getInstance();
 	} while (pClient == NULL);
 	ULONGLONG tick = GetTickCount64();
-	for (;;) {//等价于while(true)
+	while(!m_isClosed) {    //等价于while(true)
 		//if (GetTickCount64() - tick < 150) {//增加间隔
 		//	Sleep(GetTickCount64() - tick);
 		//}
@@ -389,6 +390,7 @@ void CRemoteClientDlg::threadWatchData()
 					pStream->Write(pData, pClient->GetPacket().strData.size(), &length);
 					LARGE_INTEGER bg = { 0 };
 					pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+					if((HBITMAP)m_image!=NULL)   m_image.Destroy();
 					m_image.Load(pStream);
 					m_isfull = true;
 				}
@@ -563,9 +565,12 @@ LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wparam, LPARAM lparam)//4 实现�
 
 void CRemoteClientDlg::OnBnClickedBtnStartWatch()
 {
+	m_isClosed = false;
 	CWatchDialog dlg(this);
-	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
+	HANDLE hThread=(HANDLE)_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
 	dlg.DoModal();
+	m_isClosed = true;
+	WaitForSingleObject(hThread,500);
 	//GetDlgItem(IDC_BTN_START_WATCH)->EnableWindow(FALSE);
 	
 	//m_dlgStatus.m_info.SetWindowTextA(_T("正在监视远程屏幕数据!"));
@@ -580,3 +585,12 @@ void CRemoteClientDlg::OnTimer(UINT_PTR nIDEvent)
 
 	CDialogEx::OnTimer(nIDEvent);
 }
+
+void CRemoteClientDlg::OnIpnFieldchangedIpaddressServ(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMIPADDRESS pIPAddr = reinterpret_cast<LPNMIPADDRESS>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+}
+
+

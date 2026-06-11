@@ -17,13 +17,17 @@ public:
 	enum { IDD = IDD_DLG_WATCH };
 #endif
 
+public:
+	int m_nObjWidth;
+	int m_nObjHeight;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
 public:
 	//将客户端（控制端）的坐标转换成服务端（被控端）的坐标
-	CPoint UserPoint2RemoteSceeenPoint(CPoint& point,bool isScreen=true);
+	//CPoint UserPoint2RemoteSceeenPoint(CPoint& point,bool isScreen);
+	CPoint UserPoint2RemoteSceeenPoint(CPoint& point, bool isScreen=false);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnStnClickedWatch();
@@ -35,4 +39,5 @@ public:
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	virtual void OnOK();
 };

@@ -56,6 +56,7 @@ public:
 private:
 	CImage m_image;//缓存
 	bool m_isfull;//缓存是否有数据
+	bool m_isClosed;//监视是否关闭
 	// 实现
 protected:
 	HICON m_hIcon;
@@ -85,4 +86,5 @@ public:
 
 	afx_msg void OnBnClickedBtnStartWatch();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnIpnFieldchangedIpaddressServ(NMHDR* pNMHDR, LRESULT* pResult);
 };

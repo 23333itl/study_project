@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "新建配置文件",
+    "Projects": [
+      {
+        "Path": "RemoteClient\\RemoteClient.vcxproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "RemoteCtrl\\RemoteCtrl.vcxproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
